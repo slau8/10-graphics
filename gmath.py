@@ -13,41 +13,32 @@ def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect ):
     a = calculate_ambient(ambient, areflect)
     d = calculate_diffuse(light, dreflect, normal)
     s = calculate_specular(light, sreflect, view, normal)
-    color = [0, 0, 0]
-    for i in range(len(color)):
-        color[i] = a[i] + d[i] + s[i]
+    color = [x + y + z for x, y, z in zip(a, d, s)]
     return limit_color(color)
 
 def calculate_ambient(alight, areflect):
-    acolor = [0, 0, 0]
-    for i in range(len(acolor)):
-        acolor[i] = alight[i] * areflect[i]
+    acolor = [int(x * y) for x, y in zip(alight, areflect)]
     return limit_color(acolor)
 
 def calculate_diffuse(light, dreflect, normal):
-    dcolor = [0, 0, 0]
-    lvector = normalize(light[LOCATION])
-    lcolor = light[COLOR]
-    for i in range(len(dcolor)):
-        dcolor[i] = lcolor[i] * dreflect[i] * dot_product(lvector, normalize(normal))
+    dot = dot_product(normalize(normal), normalize(light[LOCATION]))
+    dcolor = [int(x * y * dot) for x, y in zip(light[COLOR],dreflect)]
     return limit_color(dcolor)
 
 def calculate_specular(light, sreflect, view, normal):
-    scolor = [0, 0, 0]
-    temp = [0, 0, 0]
-    lvector = light[LOCATION]
-    lcolor = light[COLOR]
-    k = 2 * dot_product(lvector, normal)
-    for i in range(len(temp)):
-        temp[i] = k * normal[i] - lvector[i]
-    k = (dot_product(temp,view)) ** 16
-    for i in range(len(scolor)):
-        scolor[i] = lcolor[i] * sreflect[i] * k
-    return limit_color(scolor)
+    scolor = [x * y for x, y in zip(light[COLOR], sreflect)]
+    l = normalize(light[LOCATION])
+    v = normalize(view)
+    n = normalize(normal)
+    a = [x * 2 * dot_product(n, l) for x in n]
+    b = [x - y for x,y in zip(a,l)]
+    c = [int(x * (dot_product(b, v) ** 16)) for x in scolor]
+    if dot_product(n, l) <= 0:
+        return [0, 0, 0]
+    return limit_color(c)
 
 def limit_color(color):
     for i in range(len(color)):
-        color[i] = int(color[i])
         if color[i] < 0:
             color[i] = 0
         elif color[i] > 255:
@@ -57,10 +48,10 @@ def limit_color(color):
 #vector functions
 def normalize(vector):
     mag = (vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2) ** 0.5
-    return [vector[0]/mag, vector[1]/mag, vector[2]/mag]
+    return [x / mag for x in vector]
 
 def dot_product(a, b):
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] 
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 def calculate_normal(polygons, i):
 
