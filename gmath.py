@@ -14,14 +14,14 @@ def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect ):
     d = calculate_diffuse(light, dreflect, normal)
     s = calculate_specular(light, sreflect, view, normal)
     color = [0, 0, 0]
-    for i in range(length(color)):
+    for i in range(len(color)):
         color[i] = a[i] + d[i] + s[i]
     return limit_color(color)
 
 def calculate_ambient(alight, areflect):
     acolor = [0, 0, 0]
     for i in range(len(acolor)):
-        acolor[index] = alight[index] * areflect[index]
+        acolor[i] = alight[i] * areflect[i]
     return limit_color(acolor)
 
 def calculate_diffuse(light, dreflect, normal):
@@ -52,12 +52,12 @@ def limit_color(color):
             color[i] = 0
         elif color[i] > 255:
             color[i] = 255
-return color
+    return color
 
 #vector functions
 def normalize(vector):
     mag = (vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2) ** 0.5
-    return [i /= mag for i in vector]
+    return [vector[0]/mag, vector[1]/mag, vector[2]/mag]
 
 def dot_product(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] 
